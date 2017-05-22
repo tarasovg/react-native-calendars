@@ -12,7 +12,8 @@ export default function getStyle(theme={}) {
     placeholderText: {
       fontSize: 30,
       fontWeight: '200',
-      color: appStyle.dayTextColor
+      color: appStyle.dayTextColor,
+      ...appStyle.placeholderTextStyle,
     },
     calendar: {
       paddingLeft: 15,
