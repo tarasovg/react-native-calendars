@@ -227,6 +227,7 @@ class CalendarList extends Component {
         onScroll={this.onScroll}
         scrollEventThrottle={1000}
         style={this.props.style}
+        contentContainerStyle={this.props.contentContainerStyle}
         initialListSize={(this.pastScrollRange || 1) * (this.futureScrollRange || 1) + 1}
         dataSource={this.state.dataSource}
         scrollRenderAheadDistance={calendarHeight}
@@ -237,6 +238,7 @@ class CalendarList extends Component {
         showsVerticalScrollIndicator={false}
         onLayout={this.onLayout.bind(this)}
         scrollEnabled={this.props.scrollingEnabled !== undefined ? this.props.scrollingEnabled : true}
+        renderFooter={this.props.renderFooter}
       />
     );
   }
