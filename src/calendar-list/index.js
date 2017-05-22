@@ -32,13 +32,15 @@ class CalendarList extends Component {
       rows.push(text);
       texts.push(text);
     }
-    rows[this.pastScrollRange] = date;
-    rows[this.pastScrollRange + 1] = date.clone().addMonths(1, true);
-    if (this.pastScrollRange) {
-      rows[this.pastScrollRange - 1] = date.clone().addMonths(-1, true);
-    } else {
-      rows[this.pastScrollRange + 2] = date.clone().addMonths(2, true);
+
+    for (let i = 0; (i <= 2 && this.pastScrollRange + i < rows.length); i++) {
+      rows[this.pastScrollRange + i] = date.clone().addMonths(i, true);
     }
+
+    for (let i = 0; (i <= 2 && this.pastScrollRange - i > 0); i++) {
+      rows[this.pastScrollRange - i] = date.clone().addMonths(-i, true);
+    }
+
     this.state = {
       rows,
       texts,
@@ -47,6 +49,33 @@ class CalendarList extends Component {
       initialized: false
     };
     this.lastScrollPosition = -1000;
+  }
+
+  componentDidMount() {
+    //InteractionManager.runAfterInteractions(() => { // fix for Android, but this breaks calendar-list on iphone after site switch
+    this.scrollToMonth(this.props.current);
+    //});
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.current && this.props.current && props.current.getTime() !== this.props.current.getTime()) {
+      this.scrollToMonth(props.current);
+    }
+
+    const rowclone = this.state.rows;
+    const newrows = [];
+    for (let i = 0; i < rowclone.length; i++) {
+      let val = this.state.texts[i];
+      if (rowclone[i].getTime) {
+        val = rowclone[i].clone();
+        val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
+      }
+      newrows.push(val);
+    }
+    this.setState({
+      rows: newrows,
+      dataSource: this.state.dataSource.cloneWithRows(newrows)
+    });
   }
 
   renderCalendar(row) {
@@ -100,36 +129,7 @@ class CalendarList extends Component {
     let diffMonths = this.state.openDate.diffMonths(scrollTo);
     diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
-    //console.log(month, this.state.openDate);
-    //console.log(scrollAmount, diffMonths);
     this.listView.scrollTo({x: 0, y: scrollAmount, animated: false});
-  }
-
-  componentDidMount() {
-    //InteractionManager.runAfterInteractions(() => { // fix for Android, but this breaks calendar-list on iphone after site switch
-    this.scrollToMonth(this.props.current);
-    //});
-  }
-
-  componentWillReceiveProps(props) {
-    if (props.current && this.props.current && props.current.getTime() !== this.props.current.getTime()) {
-      this.scrollToMonth(props.current);
-    }
-
-    const rowclone = this.state.rows;
-    const newrows = [];
-    for (let i = 0; i < rowclone.length; i++) {
-      let val = this.state.texts[i];
-      if (rowclone[i].getTime) {
-        val = rowclone[i].clone();
-        val.propbump = rowclone[i].propbump ? rowclone[i].propbump + 1 : 1;
-      }
-      newrows.push(val);
-    }
-    this.setState({
-      rows: newrows,
-      dataSource: this.state.dataSource.cloneWithRows(newrows)
-    });
   }
 
   visibleRowsChange(visibleRows) {
@@ -170,7 +170,7 @@ class CalendarList extends Component {
     });
   }
 
-  onScroll(event) {
+  onScroll = (event) => {
     if (Platform.OS !== 'android') {
       return;
     }
@@ -191,7 +191,6 @@ class CalendarList extends Component {
         const rowShouldBeRendered = Math.abs(rowStart - yOffset) < calendarHeight * 2;
         if (rowShouldBeRendered && !val.getTime) {
           val = this.state.openDate.clone().addMonths(i - this.pastScrollRange, true);
-          //console.log(val, i);
         } else if (!rowShouldBeRendered) {
           val = this.state.texts[i];
         }
@@ -207,7 +206,6 @@ class CalendarList extends Component {
         rows: newrows,
         dataSource: this.state.dataSource.cloneWithRows(newrows)
       });
-      //console.log('draw executed');
     }
   }
 
@@ -223,18 +221,15 @@ class CalendarList extends Component {
   }
 
   render() {
-    //console.log('render calendar');
     return (
       <ListView
         ref={(c) => this.listView = c}
-        onScroll={this.onScroll.bind(this)}
-        //scrollEventThrottle={1000} // does not work on droid, need to recheck on newer react verions
+        onScroll={this.onScroll}
+        scrollEventThrottle={1000}
         style={this.props.style}
-        initialListSize={this.pastScrollRange * this.futureScrollRange + 1}
+        initialListSize={(this.pastScrollRange || 1) * (this.futureScrollRange || 1) + 1}
         dataSource={this.state.dataSource}
         scrollRenderAheadDistance={calendarHeight}
-                //snapToAlignment='start'
-                //snapToInterval={calendarHeight}
         pageSize={1}
         removeClippedSubviews
         onChangeVisibleRows={this.visibleRowsChange.bind(this)}
