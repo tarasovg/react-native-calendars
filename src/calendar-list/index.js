@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
 import {
   ListView,
   View,
@@ -13,7 +13,7 @@ import dateutils from '../dateutils';
 import Calendar from '../calendar';
 
 const calendarHeight = 360;
-class CalendarList extends Component {
+class CalendarList extends PureComponent {
   constructor(props) {
     super(props);
     this.pastScrollRange = props.pastScrollRange === undefined ? 50 : props.pastScrollRange;
@@ -72,13 +72,13 @@ class CalendarList extends Component {
       }
       newrows.push(val);
     }
-    this.setState({
+    this.setState(() => ({
       rows: newrows,
       dataSource: this.state.dataSource.cloneWithRows(newrows)
-    });
+    }));
   }
 
-  renderCalendar(row) {
+  renderCalendar = (row) => {
     if (row.getTime) {
       return (
         <Calendar
@@ -107,7 +107,7 @@ class CalendarList extends Component {
     }
   }
 
-  scrollToDay(d, offset, animated) {
+  scrollToDay = (d, offset, animated) => {
     const day = parseDate(d);
     const diffMonths = Math.round(this.state.openDate.clone().setDate(1).diffMonths(day.clone().setDate(1)));
     let scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight) + (offset || 0);
@@ -123,7 +123,7 @@ class CalendarList extends Component {
     this.listView.scrollTo({x: 0, y: scrollAmount, animated});
   }
 
-  scrollToMonth(m) {
+  scrollToMonth = (m) => {
     const month = parseDate(m);
     const scrollTo = month || this.state.openDate;
     let diffMonths = this.state.openDate.diffMonths(scrollTo);
@@ -132,52 +132,52 @@ class CalendarList extends Component {
     this.listView.scrollTo({x: 0, y: scrollAmount, animated: false});
   }
 
-  visibleRowsChange(visibleRows) {
-    if (Platform.OS === 'android') {
-      return;
-    }
-    if (!this.state.initialized) {
-      this.setState({
-        initialized: true
-      });
-      return;
-    }
-    const rowclone = this.state.rows;
-    const newrows = [];
-    const visibleMonths = [];
-    for (let i = 0; i < rowclone.length; i++) {
-      let val = rowclone[i];
-      const rowShouldBeRendered =
-        visibleRows.s1[i] ||
-        visibleRows.s1[i - 1] ||
-        visibleRows.s1[i + 1];
-      if (rowShouldBeRendered && !rowclone[i].getTime) {
-        val = this.state.openDate.clone().addMonths(i - this.pastScrollRange, true);
-      } else if (!rowShouldBeRendered) {
-        val = this.state.texts[i];
-      }
-      newrows.push(val);
-      if (visibleRows.s1[i]) {
-        visibleMonths.push(xdateToData(val));
-      }
-    }
-    if (this.props.onVisibleMonthsChange) {
-      this.props.onVisibleMonthsChange(visibleMonths);
-    }
-    this.setState({
-      rows: newrows,
-      dataSource: this.state.dataSource.cloneWithRows(newrows)
-    });
-  }
+  // visibleRowsChange = (visibleRows) => {
+  //   if (Platform.OS === 'android') {
+  //     return;
+  //   }
+  //   if (!this.state.initialized) {
+  //     this.setState(() => ({
+  //       initialized: true
+  //     }));
+  //     return;
+  //   }
+  //   const rowclone = this.state.rows;
+  //   const newrows = [];
+  //   const visibleMonths = [];
+  //   for (let i = 0; i < rowclone.length; i++) {
+  //     let val = rowclone[i];
+  //     const rowShouldBeRendered =
+  //       visibleRows.s1[i] ||
+  //       visibleRows.s1[i - 1] ||
+  //       visibleRows.s1[i + 1];
+  //     if (rowShouldBeRendered && !rowclone[i].getTime) {
+  //       val = this.state.openDate.clone().addMonths(i - this.pastScrollRange, true);
+  //     } else if (!rowShouldBeRendered) {
+  //       val = this.state.texts[i];
+  //     }
+  //     newrows.push(val);
+  //     if (visibleRows.s1[i]) {
+  //       visibleMonths.push(xdateToData(val));
+  //     }
+  //   }
+  //   if (this.props.onVisibleMonthsChange) {
+  //     this.props.onVisibleMonthsChange(visibleMonths);
+  //   }
+  //   this.setState(() => ({
+  //     rows: newrows,
+  //     dataSource: this.state.dataSource.cloneWithRows(newrows)
+  //   }));
+  // }
 
   onScroll = (event) => {
-    if (Platform.OS !== 'android') {
-      return;
-    }
+    // if (Platform.OS !== 'android') {
+    //   return;
+    // }
     if (!this.state.scrolled) {
-      this.setState({
+      this.setState(() => ({
         scrolled: true
-      });
+      }));
     }
     const yOffset = event.nativeEvent.contentOffset.y;
     if (Math.abs(yOffset - this.lastScrollPosition) > calendarHeight) {
@@ -202,10 +202,10 @@ class CalendarList extends Component {
       if (this.props.onVisibleMonthsChange) {
         this.props.onVisibleMonthsChange(visibleMonths);
       }
-      this.setState({
+      this.setState(() => ({
         rows: newrows,
         dataSource: this.state.dataSource.cloneWithRows(newrows)
-      });
+      }));
     }
   }
 
@@ -233,10 +233,10 @@ class CalendarList extends Component {
         scrollRenderAheadDistance={calendarHeight}
         pageSize={1}
         removeClippedSubviews
-        onChangeVisibleRows={this.visibleRowsChange.bind(this)}
-        renderRow={this.renderCalendar.bind(this)}
+        // onChangeVisibleRows={this.visibleRowsChange}
+        renderRow={this.renderCalendar}
         showsVerticalScrollIndicator={false}
-        onLayout={this.onLayout.bind(this)}
+        onLayout={this.onLayout}
         scrollEnabled={this.props.scrollingEnabled !== undefined ? this.props.scrollingEnabled : true}
         renderFooter={this.props.renderFooter}
       />

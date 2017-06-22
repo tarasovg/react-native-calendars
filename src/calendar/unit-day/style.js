@@ -38,7 +38,8 @@ export default function styleConstructor(theme={}) {
       fontSize: 16,
       fontWeight: '300',
       color: appStyle.dayTextColor || '#2d4150',
-      backgroundColor: 'rgba(255, 255, 255, 0)'
+      backgroundColor: 'rgba(255, 255, 255, 0)',
+      ...appStyle.textStyle,
     },
     todayText: {
       fontWeight: '500',
