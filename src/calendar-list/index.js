@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react';
+import React, { PureComponent } from 'react';
 import {
   ListView,
   View,
@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import XDate from 'xdate';
-import {xdateToData, parseDate} from '../interface';
+import { xdateToData, parseDate } from '../interface';
 import styleConstructor from './style';
 import dateutils from '../dateutils';
 import Calendar from '../calendar';
@@ -51,16 +51,27 @@ class CalendarList extends PureComponent {
     this.lastScrollPosition = -1000;
   }
 
+  //componentDidMount() {
+  //InteractionManager.runAfterInteractions(() => { // fix for Android, but this breaks calendar-list on iphone after site switch
+  //  this.scrollToMonth(this.props.current);
+  //});
+  //}
+
   componentDidMount() {
-    //InteractionManager.runAfterInteractions(() => { // fix for Android, but this breaks calendar-list on iphone after site switch
-    this.scrollToMonth(this.props.current);
-    //});
+    const month = parseDate(this.props.current);
+    const scrollTo = month || this.state.openDate;
+    let diffMonths = this.state.openDate.diffMonths(scrollTo);
+    diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
+    const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
+    setTimeout(() => {
+      this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
+    }, 0);
   }
 
   componentWillReceiveProps(props) {
-    if (props.current && this.props.current && props.current.getTime() !== this.props.current.getTime()) {
-      this.scrollToMonth(props.current);
-    }
+    //if (props.current && this.props.current && props.current.getTime() !== //this.props.current.getTime()) {
+    //this.scrollToMonth(props.current);
+    //}
 
     const rowclone = this.state.rows;
     const newrows = [];
@@ -84,7 +95,7 @@ class CalendarList extends PureComponent {
         <Calendar
           theme={this.props.theme}
           selected={this.props.selected}
-          style={[{height: calendarHeight}, this.style.calendar]}
+          style={[{ height: calendarHeight }, this.style.calendar]}
           current={row}
           hideArrows
           hideExtraDays={this.props.hideExtraDays === undefined ? true : this.props.hideExtraDays}
@@ -100,7 +111,7 @@ class CalendarList extends PureComponent {
     } else {
       const text = row.toString();
       return (
-        <View style={[{height: calendarHeight}, this.style.placeholder]}>
+        <View style={[{ height: calendarHeight }, this.style.placeholder]}>
           <Text style={this.style.placeholderText}>{text}</Text>
         </View>
       );
@@ -120,7 +131,7 @@ class CalendarList extends PureComponent {
         break;
       }
     }
-    this.listView.scrollTo({x: 0, y: scrollAmount, animated});
+    this.listView.scrollTo({ x: 0, y: scrollAmount, animated });
   }
 
   scrollToMonth = (m) => {
@@ -129,7 +140,7 @@ class CalendarList extends PureComponent {
     let diffMonths = this.state.openDate.diffMonths(scrollTo);
     diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
-    this.listView.scrollTo({x: 0, y: scrollAmount, animated: false});
+    this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
   }
 
   // visibleRowsChange = (visibleRows) => {
@@ -209,16 +220,16 @@ class CalendarList extends PureComponent {
     }
   }
 
-  onLayout() {
-    if (Platform.OS !== 'android') {
-      return;
-    }
-    if (!this.state.scrolled) {
-      //InteractionManager.runAfterInteractions(() => { // this code is never executed in one app
-      this.scrollToMonth(this.props.current);
+//  onLayout() {
+//    if (Platform.OS !== 'android') {
+//      return;
+//    }
+//    if (!this.state.scrolled) {
+//      //InteractionManager.runAfterInteractions(() => { // this code is never executed in one app
+//      this.scrollToMonth(this.props.current);
       //});
-    }
-  }
+//    }
+//  }
 
   render() {
     return (
@@ -227,6 +238,7 @@ class CalendarList extends PureComponent {
         onScroll={this.onScroll}
         scrollEventThrottle={1000}
         style={this.props.style}
+        pagingEnabled
         contentContainerStyle={this.props.contentContainerStyle}
         initialListSize={(this.pastScrollRange || 1) * (this.futureScrollRange || 1) + 1}
         dataSource={this.state.dataSource}
@@ -236,7 +248,7 @@ class CalendarList extends PureComponent {
         // onChangeVisibleRows={this.visibleRowsChange}
         renderRow={this.renderCalendar}
         showsVerticalScrollIndicator={false}
-        onLayout={this.onLayout}
+        //onLayout={this.onLayout}
         scrollEnabled={this.props.scrollingEnabled !== undefined ? this.props.scrollingEnabled : true}
         renderFooter={this.props.renderFooter}
       />
