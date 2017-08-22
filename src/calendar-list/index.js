@@ -238,12 +238,10 @@ class CalendarList extends PureComponent {
         onScroll={this.onScroll}
         scrollEventThrottle={1000}
         style={this.props.style}
-        pagingEnabled
         contentContainerStyle={this.props.contentContainerStyle}
         initialListSize={(this.pastScrollRange || 1) * (this.futureScrollRange || 1) + 1}
         dataSource={this.state.dataSource}
         scrollRenderAheadDistance={calendarHeight}
-        pageSize={1}
         removeClippedSubviews
         // onChangeVisibleRows={this.visibleRowsChange}
         renderRow={this.renderCalendar}
