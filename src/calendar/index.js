@@ -170,7 +170,7 @@ class Calendar extends Component {
           hideArrows={this.props.hideArrows}
           month={this.state.currentMonth}
           addMonth={this.addMonth}
-          showIndicator={indicator}
+          //showIndicator={indicator}
           firstDay={this.props.firstDay}
         />
         {weeks}
