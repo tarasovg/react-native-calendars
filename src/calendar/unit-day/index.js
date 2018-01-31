@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 //import _ from 'lodash';
 import {
   TouchableWithoutFeedback,
@@ -18,7 +19,7 @@ class Day extends Component {
   }
 
   static propTypes = {
-    state: React.PropTypes.oneOf(['selected', 'disabled', 'today', ''])
+    state: PropTypes.oneOf(['selected', 'disabled', 'today', ''])
   };
 
   shouldComponentUpdate(nextProps) {
