@@ -64,7 +64,9 @@ class CalendarList extends PureComponent {
     diffMonths = diffMonths < 0 ? Math.ceil(diffMonths) : Math.floor(diffMonths);
     const scrollAmount = (calendarHeight * this.pastScrollRange) + (diffMonths * calendarHeight);
     setTimeout(() => {
-      this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
+      if (this.listView) {
+        this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
+      }
     }, 0);
   }
 
