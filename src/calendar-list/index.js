@@ -51,12 +51,6 @@ class CalendarList extends PureComponent {
     this.lastScrollPosition = -1000;
   }
 
-  //componentDidMount() {
-  //InteractionManager.runAfterInteractions(() => { // fix for Android, but this breaks calendar-list on iphone after site switch
-  //  this.scrollToMonth(this.props.current);
-  //});
-  //}
-
   componentDidMount() {
     const month = parseDate(this.props.current);
     const scrollTo = month || this.state.openDate;
@@ -67,7 +61,7 @@ class CalendarList extends PureComponent {
       if (this.listView) {
         this.listView.scrollTo({ x: 0, y: scrollAmount, animated: false });
       }
-    }, 0);
+    }, Platform.select({ ios: 0, android: 300 }));
   }
 
   componentWillReceiveProps(props) {
